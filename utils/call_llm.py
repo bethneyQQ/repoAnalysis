@@ -52,7 +52,7 @@ def call_llm(prompt: str, use_cache: bool = True, max_retries: int = 5) -> str:
     client = Anthropic(
         api_key=os.getenv(
             "ANTHROPIC_API_KEY",
-            "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",
+            "",
         )
     )
 
