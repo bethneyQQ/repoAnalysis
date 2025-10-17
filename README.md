@@ -3,10 +3,10 @@
 基于可插拔 Flow/Node 的代码仓库分析框架
 
 ## 特性
-- 🎯 Common vs Custom Nodes 清晰分离
-- 📦 Scenario 真正可插拔
-- 🚀 支持并行/异步（引擎可后续扩展）
-- 📊 可输出报告与指标
+- Common vs Custom Nodes 清晰分离
+- Scenario 真正可插拔
+- 支持并行/异步（引擎可后续扩展）
+- 可输出报告与指标
 
 ## 快速开始
 ```bash
