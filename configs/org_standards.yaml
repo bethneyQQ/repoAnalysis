@@ -1,0 +1,5 @@
+naming:
+  file: kebab-case
+  class: PascalCase
+  function: camelCase
+  constant: UPPER_SNAKE_CASE

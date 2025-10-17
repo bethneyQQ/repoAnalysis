@@ -1,0 +1,12 @@
+# Node 注册表（工厂函数方式）
+common_nodes:
+  - id: get_files
+    module: nodes.common.get_files_node
+    factory: get_files_node
+  - id: parse_code
+    module: nodes.common.parse_code_node
+    factory: parse_code_node
+custom_nodes:
+  - id: check_naming
+    module: nodes.custom.check_naming_convention_node
+    factory: check_naming_convention_node
