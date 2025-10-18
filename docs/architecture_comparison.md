@@ -201,12 +201,12 @@ Shows which review nodes can be used across scenarios:
 
 | Node | Scenario 2<br>Adaptation | Scenario 3<br>Regression | Scenario 4<br>Arch Drift | Scenario 6<br>Code Review |
 |------|-------------------------|-------------------------|-------------------------|--------------------------|
-| `get_git_diff_node` | - | ✓ | ✓ | ✓ |
-| `security_review_node` | ✓ | ✓ | - | ✓ |
-| `performance_review_node` | - | ✓ | ✓ | ✓ |
-| `quality_review_node` | ✓ | ✓ | - | ✓ |
-| `constraint_validation_node` | ✓ | - | - | ✓ |
-| `test_coverage_review_node` | - | ✓ | - | ✓ |
+| `get_git_diff_node` | - | Yes | Yes | Yes |
+| `security_review_node` | Yes | Yes | - | Yes |
+| `performance_review_node` | - | Yes | Yes | Yes |
+| `quality_review_node` | Yes | Yes | - | Yes |
+| `constraint_validation_node` | Yes | - | - | Yes |
+| `test_coverage_review_node` | - | Yes | - | Yes |
 
 **Key Insight**: Review nodes become **reusable building blocks** across multiple scenarios!
 

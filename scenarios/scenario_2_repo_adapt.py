@@ -149,7 +149,7 @@ def run(config=None):
     """运行场景②"""
     config = config or {}
     if not config.get("repo_url"):
-        print("⚠️  需要提供 repo_url 参数")
+        print("WARNING: 需要提供 repo_url 参数")
         return {"error": "missing repo_url"}
 
     scenario = create_repo_adapt_scenario(config)

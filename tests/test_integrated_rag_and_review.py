@@ -101,8 +101,8 @@ index 0000000..abcdefg
         assert "formatted_prompt" in rag_result
         formatted_code = rag_result["formatted_prompt"]
 
-        print(f"✓ RAG analyzed {rag_result['files_to_prompt_stats']['files_processed']} files")
-        print(f"✓ Generated {len(formatted_code)} characters of context")
+        print(f"RAG analyzed {rag_result['files_to_prompt_stats']['files_processed']} files")
+        print(f"Generated {len(formatted_code)} characters of context")
 
         # Extract insights from RAG (in real scenario, would send to LLM)
         codebase_context = {
@@ -134,8 +134,8 @@ index 0000000..abcdefg
         security_findings = review_result.get("security_findings", [])
         quality_findings = review_result.get("quality_findings", [])
 
-        print(f"✓ Security issues found: {len(security_findings)}")
-        print(f"✓ Quality issues found: {len(quality_findings)}")
+        print(f"Security issues found: {len(security_findings)}")
+        print(f"Quality issues found: {len(quality_findings)}")
 
         # ===== Phase 3: Enhanced Analysis =====
         print("\n" + "="*80)
@@ -148,14 +148,14 @@ index 0000000..abcdefg
 
         # Enhanced insight: Code reuses existing auth module (detected by RAG)
         if codebase_context["security_aware"]:
-            print("\n✓ POSITIVE: New code imports from existing secure auth module")
-            print("  → Good practice: Reusing secure authentication logic")
+            print("\nPOSITIVE: New code imports from existing secure auth module")
+            print("  Good practice: Reusing secure authentication logic")
 
         # But still has SQL injection
         if sql_issues:
-            print("\n✗ CRITICAL: SQL injection vulnerability detected")
-            print(f"  → Found in: {sql_issues[0]['file']}:{sql_issues[0]['line']}")
-            print(f"  → Issue: {sql_issues[0]['message']}")
+            print("\nCRITICAL: SQL injection vulnerability detected")
+            print(f"  Found in: {sql_issues[0]['file']}:{sql_issues[0]['line']}")
+            print(f"  Issue: {sql_issues[0]['message']}")
 
         # Recommendation based on both RAG and Review
         print("\n" + "="*80)
@@ -170,7 +170,7 @@ index 0000000..abcdefg
         assert len(sql_issues) > 0, "Review should detect SQL injection"
 
         print("\n" + "="*80)
-        print("✓ Integration Test Passed")
+        print("Integration Test Passed")
         print("="*80)
 
 

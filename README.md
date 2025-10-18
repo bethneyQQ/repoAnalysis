@@ -428,6 +428,7 @@ repo-analysis/
 ├── engine.py             # Flow/Node execution engine
 ├── cli.py                # CLI with 6 scenarios
 ├── requirements.txt      # Dependencies
+└── SCENARIO_6_SUMMARY.md # NEW: Scenario 6 implementation summary
 ```
 
 ## CLI Commands
@@ -562,6 +563,14 @@ print(result.get("llm_response"))
 - gitpython (for git operations)
 
 ## Related Documentation
+
+### Scenario 6 Resources
+- [SCENARIO_6_SUMMARY.md](SCENARIO_6_SUMMARY.md) - Complete implementation summary
+- [Integration Summary](docs/integration_summary.md) - Overview and design decisions
+- [Integration Analysis](docs/integration_analysis.md) - Detailed analysis and options
+- [Architecture Comparison](docs/architecture_comparison.md) - CodeReviewAgent vs Node-based
+- [Implementation Example](docs/implementation_example.md) - Working code examples
+
 ### Tests
 - All scenario 6 tests: `python -m pytest tests/test_scenario_6_code_review.py -v`
 - Individual node tests available in test file
@@ -576,6 +585,10 @@ Contributions welcome! Areas for improvement:
 - Custom reporting formats and templates
 - More review patterns and rules
 - Integration with issue trackers
+
+## Related Projects
+
+- [CodeReviewAgent](https://github.com/bethneyQQ/CodeReviewAgent) - Constraint-based code review agent (can be integrated as Scenario 6)
 
 ## License
 
