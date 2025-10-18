@@ -45,14 +45,14 @@ def snapshot(patterns, model):
     result = scenario_1_local_snapshot.run(config)
     snapshot_id = result.get('snapshot_id')
     if snapshot_id:
-        click.echo(f"✅ Snapshot created: {snapshot_id}")
+        click.echo(f" Snapshot created: {snapshot_id}")
         # 打印部分内容
         response = result.get('llm_response', '')
         if response:
             preview = response[:300] + "..." if len(response) > 300 else response
-            click.echo(f"\n📄 快照预览：\n{preview}\n")
+            click.echo(f"\n 快照预览：\n{preview}\n")
     else:
-        click.echo("✅ 快照已生成（mock LLM 内容），详见 .ai-snapshots/ 目录")
+        click.echo(" 快照已生成（mock LLM 内容），详见 .ai-snapshots/ 目录")
 
 
 @cli.command(name='snapshot-list')
@@ -60,13 +60,13 @@ def snapshot_list():
     """列出所有快照"""
     snapshots_dir = Path(".ai-snapshots")
     if not snapshots_dir.exists():
-        click.echo("❌ No snapshots found")
+        click.echo("No snapshots found")
         return
 
     snapshot_files = sorted(snapshots_dir.glob("snapshot-*.json"), reverse=True)
 
     if not snapshot_files:
-        click.echo("❌ No snapshots found")
+        click.echo("No snapshots found")
         return
 
     click.echo("📋 Available Snapshots:\n")
@@ -92,7 +92,7 @@ def snapshot_restore(snapshot_id):
     snapshot_file = Path(f".ai-snapshots/snapshot-{snapshot_id}.json")
 
     if not snapshot_file.exists():
-        click.echo(f"❌ Snapshot not found: {snapshot_id}")
+        click.echo(f"Snapshot not found: {snapshot_id}")
         click.echo("Run 'python cli.py snapshot-list' to see available snapshots")
         return
 
@@ -124,16 +124,16 @@ def snapshot_restore(snapshot_id):
 
             restored_count += 1
 
-        click.echo(f"✅ Restored {restored_count} files")
-        click.echo(f"✅ Hash verification: {hash_matches}/{restored_count} files matched")
+        click.echo(f"Restored {restored_count} files")
+        click.echo(f"Hash verification: {hash_matches}/{restored_count} files matched")
 
         if hash_matches == restored_count:
-            click.echo("✅ All files restored successfully with matching hashes")
+            click.echo("All files restored successfully with matching hashes")
         else:
-            click.echo("⚠️  Some files have hash mismatches")
+            click.echo("Some files have hash mismatches")
 
     except Exception as e:
-        click.echo(f"❌ Error restoring snapshot: {e}")
+        click.echo(f"Error restoring snapshot: {e}")
 
 
 @cli.command()
@@ -148,23 +148,23 @@ def adapt(repo, model):
     python cli.py adapt https://github.com/pallets/flask
     """
     if not repo:
-        click.echo("❌ 需要提供仓库 URL")
+        click.echo("需要提供仓库 URL")
         click.echo("示例: python cli.py adapt https://github.com/pallets/flask")
         return
 
-    click.echo(f"🔧 场景②：开源项目理解与组织化改造")
-    click.echo(f"📦 仓库：{repo}")
+    click.echo(f"场景②：开源项目理解与组织化改造")
+    click.echo(f"仓库：{repo}")
 
     config = {'repo_url': repo, 'model': model}
     result = scenario_2_repo_adapt.run(config)
 
     if result.get('error'):
-        click.echo(f"❌ 错误：{result['error']}")
+        click.echo(f"错误：{result['error']}")
         return
 
     out = result.get('output_file_path')
     if out:
-        click.echo(f"✅ 改造计划已保存：{out}")
+        click.echo(f"改造计划已保存：{out}")
         # 打印关键信息
         if 'llm_response' in result:
             response = result['llm_response']
@@ -185,8 +185,8 @@ def regression(baseline, build, model, pass_rate_min, coverage_drop_max):
 
     收集测试、覆盖率、Lint 指标，AI 评估是否放行
     """
-    click.echo("🧪 场景③：回归检测与质量门禁")
-    click.echo(f"📊 基线：{baseline}, 构建：{build}")
+    click.echo(" 场景③：回归检测与质量门禁")
+    click.echo(f" 基线：{baseline}, 构建：{build}")
 
     config = {
         'baseline': baseline,
@@ -199,13 +199,13 @@ def regression(baseline, build, model, pass_rate_min, coverage_drop_max):
 
     out = result.get('output_file_path')
     if out:
-        click.echo(f"✅ 门禁结果已保存：{out}")
+        click.echo(f" 门禁结果已保存：{out}")
         # 打印门禁判定
         if 'llm_response' in result:
             response = result['llm_response']
             if 'gate:' in response or 'PASS' in response or 'FAIL' in response:
                 lines = response.split('\n')[:10]
-                click.echo(f"\n🚦 门禁判定：\n" + '\n'.join(lines) + "\n")
+                click.echo(f"\n 门禁判定：\n" + '\n'.join(lines) + "\n")
 
 
 @cli.command(name='arch-drift')
@@ -215,14 +215,14 @@ def arch_drift(model):
 
     分析依赖图、分层违规、复杂度、API 破坏，AI 审计架构健康度
     """
-    click.echo("🏗️  场景④：架构影响与漂移扫描")
+    click.echo("  场景④：架构影响与漂移扫描")
 
     config = {'model': model}
     result = scenario_4_arch_drift.run(config)
 
     out = result.get('output_file_path')
     if out:
-        click.echo(f"✅ 架构门禁结果已保存：{out}")
+        click.echo(f" 架构门禁结果已保存：{out}")
         # 打印架构评分
         if 'llm_response' in result:
             response = result['llm_response']
