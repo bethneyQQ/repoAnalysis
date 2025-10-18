@@ -428,7 +428,6 @@ repo-analysis/
 ├── engine.py             # Flow/Node execution engine
 ├── cli.py                # CLI with 6 scenarios
 ├── requirements.txt      # Dependencies
-└── SCENARIO_6_SUMMARY.md # NEW: Scenario 6 implementation summary
 ```
 
 ## CLI Commands
