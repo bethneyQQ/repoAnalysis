@@ -1,9 +1,10 @@
 """
-CLI 入口：支持四个场景
+CLI 入口：支持五个场景
 - snapshot: 本地快照与回滚
 - adapt: 开源项目理解与组织化改造
 - regression: 回归检测与质量门禁
 - arch-drift: 架构影响与漂移扫描
+- rag: 本地轻量级 RAG (Files-to-Prompt)
 """
 
 import click
@@ -14,17 +15,19 @@ from scenarios import scenario_1_local_snapshot
 from scenarios import scenario_2_repo_adapt
 from scenarios import scenario_3_regression
 from scenarios import scenario_4_arch_drift
+from scenarios import scenario_5_local_rag
 
 
 @click.group()
 def cli():
     """代码仓库分析工具
 
-    支持四个核心场景：
+    支持五个核心场景：
     1. snapshot - 本地快照与回滚
     2. adapt - 开源项目理解与组织化改造
     3. regression - 回归检测与质量门禁
     4. arch-drift - 架构影响与漂移扫描
+    5. rag - 本地轻量级 RAG (Files-to-Prompt)
     """
     pass
 
@@ -37,7 +40,7 @@ def snapshot(patterns, model):
 
     扫描项目文件，解析代码结构，使用 AI 分析并生成快照
     """
-    click.echo("🔍 场景①：本地快照与回滚")
+    click.echo("场景①：本地快照与回滚")
     config = {
         'file_patterns': list(patterns),
         'model': model
@@ -45,14 +48,14 @@ def snapshot(patterns, model):
     result = scenario_1_local_snapshot.run(config)
     snapshot_id = result.get('snapshot_id')
     if snapshot_id:
-        click.echo(f" Snapshot created: {snapshot_id}")
+        click.echo(f"Snapshot created: {snapshot_id}")
         # 打印部分内容
         response = result.get('llm_response', '')
         if response:
             preview = response[:300] + "..." if len(response) > 300 else response
-            click.echo(f"\n 快照预览：\n{preview}\n")
+            click.echo(f"\n快照预览：\n{preview}\n")
     else:
-        click.echo(" 快照已生成（mock LLM 内容），详见 .ai-snapshots/ 目录")
+        click.echo("快照已生成（mock LLM 内容），详见 .ai-snapshots/ 目录")
 
 
 @cli.command(name='snapshot-list')
@@ -69,7 +72,7 @@ def snapshot_list():
         click.echo("No snapshots found")
         return
 
-    click.echo("📋 Available Snapshots:\n")
+    click.echo("Available Snapshots:\n")
     for snap_file in snapshot_files:
         try:
             with open(snap_file, 'r') as f:
@@ -104,7 +107,7 @@ def snapshot_restore(snapshot_id):
         restored_count = 0
         hash_matches = 0
 
-        click.echo(f"🔄 Restoring from snapshot {snapshot_id}...\n")
+        click.echo(f"Restoring from snapshot {snapshot_id}...\n")
 
         for file_path, file_data in files.items():
             content = file_data.get('content', '')
@@ -171,7 +174,7 @@ def adapt(repo, model):
             if 'plan:' in response:
                 plan_start = response.find('plan:')
                 plan_section = response[plan_start:plan_start+500]
-                click.echo(f"\n📋 计划摘要：\n{plan_section}...\n")
+                click.echo(f"\n计划摘要：\n{plan_section}...\n")
 
 
 @cli.command()
@@ -185,8 +188,8 @@ def regression(baseline, build, model, pass_rate_min, coverage_drop_max):
 
     收集测试、覆盖率、Lint 指标，AI 评估是否放行
     """
-    click.echo(" 场景③：回归检测与质量门禁")
-    click.echo(f" 基线：{baseline}, 构建：{build}")
+    click.echo("场景③：回归检测与质量门禁")
+    click.echo(f"基线：{baseline}, 构建：{build}")
 
     config = {
         'baseline': baseline,
@@ -199,13 +202,13 @@ def regression(baseline, build, model, pass_rate_min, coverage_drop_max):
 
     out = result.get('output_file_path')
     if out:
-        click.echo(f" 门禁结果已保存：{out}")
+        click.echo(f"门禁结果已保存：{out}")
         # 打印门禁判定
         if 'llm_response' in result:
             response = result['llm_response']
             if 'gate:' in response or 'PASS' in response or 'FAIL' in response:
                 lines = response.split('\n')[:10]
-                click.echo(f"\n 门禁判定：\n" + '\n'.join(lines) + "\n")
+                click.echo(f"\n门禁判定：\n" + '\n'.join(lines) + "\n")
 
 
 @cli.command(name='arch-drift')
@@ -215,20 +218,81 @@ def arch_drift(model):
 
     分析依赖图、分层违规、复杂度、API 破坏，AI 审计架构健康度
     """
-    click.echo("  场景④：架构影响与漂移扫描")
+    click.echo("场景④：架构影响与漂移扫描")
 
     config = {'model': model}
     result = scenario_4_arch_drift.run(config)
 
     out = result.get('output_file_path')
     if out:
-        click.echo(f" 架构门禁结果已保存：{out}")
+        click.echo(f"架构门禁结果已保存：{out}")
         # 打印架构评分
         if 'llm_response' in result:
             response = result['llm_response']
             if 'arch_gate:' in response or 'score:' in response:
                 lines = response.split('\n')[:15]
-                click.echo(f"\n📐 架构评估：\n" + '\n'.join(lines) + "\n")
+                click.echo(f"\n架构评估：\n" + '\n'.join(lines) + "\n")
+
+
+@cli.command()
+@click.option('--patterns', multiple=True, default=['**/*.py'], help='文件匹配模式 (可多次指定)')
+@click.option('--query', required=True, help='要问 LLM 的问题')
+@click.option('--format', type=click.Choice(['xml', 'markdown']), default='xml', help='输出格式')
+@click.option('--cxml', is_flag=True, help='使用紧凑 XML 格式（适合长上下文）')
+@click.option('--line-numbers', is_flag=True, help='包含行号')
+@click.option('--model', default='claude-3-haiku-20240307', help='LLM 模型')
+def rag(patterns, query, format, cxml, line_numbers, model):
+    """场景⑤：本地轻量级 RAG (Files-to-Prompt)
+
+    快速让 LLM 理解代码库并回答问题
+
+    用例：
+    1. 项目概览：--query "这个项目是怎么工作的？"
+    2. 生成文档：--patterns "tests/**/*.py" --query "生成 API 文档"
+    3. 定位功能：--query "JWT 校验在哪实现？" --line-numbers
+    4. 代码审阅：--query "审阅代码质量"
+
+    示例：
+      python cli.py rag --patterns "**/*.py" --query "项目架构是什么？"
+      python cli.py rag --patterns "tests/**" --query "生成测试文档" --format markdown
+    """
+    click.echo("场景⑤：本地轻量级 RAG (Files-to-Prompt)")
+    click.echo(f"文件模式: {', '.join(patterns)}")
+    click.echo(f"问题: {query}\n")
+
+    result = scenario_5_local_rag.run_rag_query(
+        project_root=".",
+        patterns=list(patterns),
+        query=query,
+        model=model,
+        format=format,
+        cxml=cxml,
+        include_line_numbers=line_numbers
+    )
+
+    # 显示统计信息
+    stats = result.get('files_to_prompt_stats', {})
+    if stats:
+        click.echo(f"统计信息:")
+        click.echo(f"   - 处理文件数: {stats.get('files_processed', 0)}")
+        click.echo(f"   - 总行数: {stats.get('total_lines', 0):,}")
+        click.echo(f"   - 总字符数: {stats.get('total_chars', 0):,}")
+        click.echo(f"   - 平均每文件行数: {stats.get('avg_lines_per_file', 0)}\n")
+
+    # 显示 LLM 响应
+    response = result.get('llm_response', '')
+    if response:
+        click.echo("LLM 回答:")
+        click.echo("-" * 80)
+        click.echo(response)
+        click.echo("-" * 80)
+    else:
+        error = result.get('files_to_prompt_error') or result.get('llm_error')
+        if error:
+            click.echo(f"错误: {error}")
+        else:
+            click.echo("未收到响应")
+
 
 if __name__ == '__main__':
     cli()
