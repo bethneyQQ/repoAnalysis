@@ -22,24 +22,31 @@ def get_files_node():
         exclude = prep_result["exclude"]
         exts = prep_result["extensions"]
 
-        all_files = []
-        for path in root.glob("**/*"):
-            if not path.is_file():
-                continue
-            rel = path.relative_to(root).as_posix()
+        all_files = set()
 
-            # include
-            if not any(fnmatch.fnmatch(rel, pat) for pat in patterns):
-                continue
-            # exclude
-            if any(fnmatch.fnmatch(rel, ex) for ex in exclude):
-                continue
-            # extension
-            if exts and path.suffix not in exts:
-                continue
+        # Use glob for each pattern
+        for pattern in patterns:
+            for path in root.glob(pattern):
+                if not path.is_file():
+                    continue
+                rel = path.relative_to(root).as_posix()
 
-            all_files.append(str(path.resolve()))
-        return all_files
+                # exclude
+                excluded = False
+                for ex in exclude:
+                    if fnmatch.fnmatch(rel, ex) or fnmatch.fnmatch(rel, ex.rstrip('/**')):
+                        excluded = True
+                        break
+                if excluded:
+                    continue
+
+                # extension
+                if exts and path.suffix not in exts:
+                    continue
+
+                all_files.add(str(path.resolve()))
+
+        return sorted(list(all_files))
 
     def post(ctx, prep_result, exec_result, params):
         ctx["files"] = exec_result

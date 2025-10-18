@@ -1,0 +1,151 @@
+# 组织规范配置文件
+# 用于场景②（开源项目改造）和场景④（架构漂移扫描）
+
+# 命名规范
+naming:
+  file: kebab-case          # 文件名：kebab-case
+  class: PascalCase         # 类名：PascalCase
+  function: camelCase       # 函数名：camelCase (Python 推荐 snake_case)
+  constant: UPPER_SNAKE_CASE # 常量：UPPER_SNAKE_CASE
+  module: snake_case        # 模块名：snake_case
+
+# 架构分层
+architecture:
+  # 分层依赖关系（允许的依赖方向）
+  layer_dependencies:
+    presentation:           # 表现层
+      - application
+      - domain
+    application:            # 应用层
+      - domain
+    domain: []              # 领域层：不依赖其他层
+    infrastructure:         # 基础设施层
+      - domain
+
+  # 最大分层深度
+  max_layer_depth: 3
+
+  # 禁止的导入模式
+  forbidden_patterns:
+    - '../../../'           # 禁止过深的相对导入
+    - '*.test.*'            # 生产代码禁止导入测试代码
+
+  # 允许的循环依赖数量（理想为 0）
+  max_cycles: 0
+
+# 模块结构要求
+module_structure:
+  # 必需文件
+  required_files:
+    - README.md
+    - requirements.txt      # Python
+    - setup.py             # Python 包
+    # - package.json       # Node.js
+
+  # 必需目录
+  required_folders:
+    - src                  # 源代码
+    - tests                # 测试
+    - docs                 # 文档
+
+  # 可选但推荐的目录
+  recommended_folders:
+    - examples             # 示例
+    - scripts              # 脚本
+    - configs              # 配置
+
+# 代码质量规则
+quality:
+  # 复杂度限制
+  complexity:
+    max_cyclomatic: 10     # 单个函数最大圈复杂度
+    max_cognitive: 15      # 单个函数最大认知复杂度
+
+  # 文件大小限制
+  file_size:
+    max_lines: 500         # 单个文件最大行数
+    warn_lines: 300        # 警告行数
+
+  # 函数大小限制
+  function_size:
+    max_lines: 50          # 单个函数最大行数
+    max_parameters: 5      # 最大参数数量
+
+  # 测试要求
+  testing:
+    min_coverage: 80       # 最低代码覆盖率 (%)
+    required_test_patterns:
+      - 'test_*.py'
+      - '*_test.py'
+
+# 依赖管理
+dependencies:
+  # 禁止的依赖（安全/许可证原因）
+  forbidden:
+    - 'bad-package'        # 示例：禁止的包名
+
+  # 许可证白名单
+  allowed_licenses:
+    - MIT
+    - Apache-2.0
+    - BSD-3-Clause
+    - BSD-2-Clause
+    - ISC
+    - Python-2.0
+
+  # 许可证黑名单
+  forbidden_licenses:
+    - GPL-3.0              # 传染性许可证
+    - AGPL-3.0
+
+  # 版本策略
+  versioning:
+    strategy: semver       # 语义化版本
+    pin_major: true        # 固定主版本
+    allow_prerelease: false # 不允许预发布版本
+
+# 安全规则
+security:
+  # 禁止的代码模式
+  forbidden_patterns:
+    - eval\(               # 禁止 eval
+    - exec\(               # 禁止 exec
+    - \.\.\/              # 限制路径遍历
+    - password.*=.*['"]   # 硬编码密码检测
+
+  # 必需的安全扫描
+  required_scans:
+    - bandit               # Python 安全扫描
+    - safety               # 依赖安全检查
+
+# 文档要求
+documentation:
+  # 必需的文档类型
+  required:
+    - API文档
+    - 架构设计文档
+    - 部署文档
+
+  # 代码注释要求
+  comments:
+    require_class_docstring: true
+    require_public_function_docstring: true
+    min_comment_ratio: 0.1  # 注释行占比
+
+# Git 工作流
+git_workflow:
+  branch_naming:
+    feature: 'feature/*'
+    bugfix: 'bugfix/*'
+    hotfix: 'hotfix/*'
+    release: 'release/*'
+
+  commit_message:
+    pattern: '^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}'
+    require_issue_ref: false
+
+  # PR 要求
+  pull_request:
+    min_reviewers: 1
+    require_tests: true
+    require_changelog: true

@@ -2,7 +2,7 @@ from engine import node
 import json, os
 
 def _safe_ts():
-    return "20251017_220826"
+    return "20251017_224355"
 
 def write_file_node():
     """写入文件节点"""
