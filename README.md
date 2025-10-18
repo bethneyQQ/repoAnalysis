@@ -3,12 +3,12 @@
 AI-powered code analysis framework based on pluggable Flow/Node architecture
 
 ## Features
-- 🎯 Clear separation between Common and Custom Nodes
-- 📦 Truly pluggable Scenario system
-- 🤖 LLM-powered analysis (Anthropic Claude, OpenAI)
-- 🚀 Support for parallel/async execution
-- 📊 Structured output with YAML metadata
-- 🔄 **Complete Pass ↔ Fail ↔ Pass verification cycles**
+-  Clear separation between Common and Custom Nodes
+-  Truly pluggable Scenario system
+-  LLM-powered analysis (Anthropic Claude, OpenAI)
+-  Support for parallel/async execution
+-  Structured output with YAML metadata
+-  **Complete Pass ↔ Fail ↔ Pass verification cycles**
 
 ## Quick Start
 
@@ -30,10 +30,8 @@ bash examples/run_all_scenarios.sh
 ```
 
 This will:
-- ✅ Verify all four scenarios end-to-end
-- ✅ Use real LLM API (Claude Haiku)
-- ✅ Generate structured outputs (JSON + YAML + MD)
-- ✅ Complete in ~5-10 minutes
+-  Verify all four scenarios end-to-end
+-  Generate structured outputs (JSON + YAML + MD)
 
 ## Four Core Scenarios
 
@@ -65,11 +63,11 @@ bash examples/demo_scenario1_snapshot_rollback.sh
 ```
 
 **Verification Points**:
-- ✅ Creates snapshot with file contents and hashes
-- ✅ LLM generates code health report
-- ✅ Modifies files and creates second snapshot
-- ✅ Restores from first snapshot
-- ✅ Hash verification passes (byte-for-byte match)
+-  Creates snapshot with file contents and hashes
+-  LLM generates code health report
+-  Modifies files and creates second snapshot
+-  Restores from first snapshot
+-  Hash verification passes (byte-for-byte match)
 
 **Output Files**:
 - `.ai-snapshots/snapshot-{timestamp}.json` - Full snapshot with file contents
@@ -93,10 +91,10 @@ python cli.py adapt "https://github.com/pallets/click" --model "claude-3-haiku-2
 ```
 
 **Verification Points**:
-- ✅ Clones real repository (Click project)
-- ✅ Generates 10 understanding points
-- ✅ Detects rule violations
-- ✅ Creates executable `plan` YAML with steps
+-  Clones real repository (Click project)
+-  Generates 10 understanding points
+-  Detects rule violations
+-  Creates executable `plan` YAML with steps
 
 **Output Files**:
 - `.ai-snapshots/repo_adapt_plan-{timestamp}.md`
@@ -123,10 +121,10 @@ bash examples/demo_scenario3_regression_cycle.sh
 ```
 
 **Verification Points**:
-- ✅ Baseline test returns PASS
-- ✅ Simulates failure injection
-- ✅ After fix returns PASS
-- ✅ Generates `gate` YAML with reasons and actions
+-  Baseline test returns PASS
+-  Simulates failure injection
+-  After fix returns PASS
+-  Generates `gate` YAML with reasons and actions
 
 **Output Files**:
 - `.ai-snapshots/regression_gate-{timestamp}.md`
@@ -154,81 +152,53 @@ bash examples/demo_scenario4_arch_drift_cycle.sh
 ```
 
 **Verification Points**:
-- ✅ Baseline returns PASS with score (e.g., 90/100)
-- ✅ Simulates architecture drift
-- ✅ After fix returns PASS
-- ✅ Generates `arch_gate` YAML with score and pass/fail
+-  Baseline returns PASS with score (e.g., 90/100)
+-  Simulates architecture drift
+-  After fix returns PASS
+-  Generates `arch_gate` YAML with score and pass/fail
 
 **Output Files**:
 - `.ai-snapshots/arch_gate-{timestamp}.md`
 
 ---
 
-## Real API Usage Verification
-
-### Token Usage (Example Run)
-
-| Scenario | Input Tokens | Output Tokens | Total |
-|----------|--------------|---------------|-------|
-| ① Local Snapshot | 685 | 505 | 1,190 |
-| ③ Regression Gate | 313 | 347 | 660 |
-| ④ Architecture Drift | 440 | 279 | 719 |
-| **Total** | **1,438** | **1,131** | **2,569** |
-
-### API Call Logging
-
-The system logs detailed API call information:
-```
-============================================================
-🔵 Calling Anthropic API
-Model: claude-3-haiku-20240307
-Prompt length: 1404 chars
-============================================================
-
-============================================================
-✅ API Response received
-Input tokens: 685
-Output tokens: 505
-============================================================
-```
-
 ## Test Coverage Summary
 
-✅ **All requirements from 4-Scenario Verification Framework are covered with REAL implementations**:
+ **All requirements from 4-Scenario Verification Framework are covered with REAL implementations**:
 
-### Scenario ① - Local Snapshot ✅ 100% Real
+### Scenario ① - Local Snapshot  
 - [x] Create snapshot with file contents + SHA256 hashes
 - [x] Modify files
 - [x] Create second snapshot
 - [x] Restore from snapshot
-- [x] **Hash verification passes (byte-for-byte match)** ✅
+- [x] **Hash verification passes (byte-for-byte match)** 
 - [x] Demo script: `examples/demo_scenario1_snapshot_rollback.sh`
 - [x] **Real Implementation**: Files actually restored and verified
 
-### Scenario ② - Repository Adaptation ✅ 90% Real
+### Scenario ② - Repository Adaptation  
 - [x] Clone real GitHub repository (Click project)
 - [x] Generate repository profile with 10 understanding points
 - [x] Detect organization rule violations
 - [x] Generate executable `plan.yaml` with steps
-- [x] **Parse and execute plan (dry run)** ✅
+- [x] **Parse and execute plan (dry run)** 
 - [x] Demo script: `examples/demo_scenario2_adapt_apply.sh`
 - [x] **Real Implementation**: `PlanExecutor` class supports move/dep_replace/rename/config
 
-### Scenario ③ - Regression Detection ✅ 100% Real
+### Scenario ③ - Regression Detection 
 - [x] Baseline test (PASS)
-- [x] **REAL failure injection** (adds failing tests to `tests/test_nodes.py`) ✅
-- [x] **Run pytest and verify FAILED** ✅
-- [x] **Remove failing tests and verify PASS** ✅
-- [x] **Complete Pass → Fail → Pass cycle** ✅
+- [x] **REAL failure injection** (adds failing tests to `tests/test_nodes.py`) 
+- [x] **Run pytest and verify FAILED** 
+- [x] **Remove failing tests and verify PASS** 
+- [x] **Complete Pass → Fail → Pass cycle** 
 - [x] Demo script: `examples/demo_scenario3_regression_cycle.sh`
 - [x] **Real Implementation**: Actually modifies test files and runs pytest
 
-### Scenario ④ - Architecture Drift ✅ 100% Real
+### Scenario ④ - Architecture Drift 
 - [x] Baseline architecture scan (score: 90/100, PASS)
-- [x] **REAL drift injection** (creates circular dependency: module_a ↔ module_b) ✅
-- [x] **Run Python import and verify ImportError** ✅
-- [x] **Remove circular dependency and verify fix** ✅
-- [x] **Complete Pass → Fail → Pass cycle** ✅
+- [x] **REAL drift injection** (creates circular dependency: module_a ↔ module_b) 
+- [x] **Run Python import and verify ImportError** 
+- [x] **Remove circular dependency and verify fix** 
+- [x] **Complete Pass → Fail → Pass cycle** 
 - [x] Demo script: `examples/demo_scenario4_arch_drift_cycle.sh`
 - [x] **Real Implementation**: Actually creates circular dependencies and detects import errors
 
@@ -260,10 +230,10 @@ repo-analysis/
 │   ├── regression.prompt.md
 │   └── arch_drift.prompt.md
 ├── examples/             # Demo scripts
-│   ├── demo_scenario1_snapshot_rollback.sh   # ✅ Complete cycle
-│   ├── demo_scenario3_regression_cycle.sh    # ✅ Pass ↔ Fail ↔ Pass
-│   ├── demo_scenario4_arch_drift_cycle.sh    # ✅ Pass ↔ Fail ↔ Pass
-│   └── run_all_scenarios.sh                  # ✅ One-click verification
+│   ├── demo_scenario1_snapshot_rollback.sh   #  Complete cycle
+│   ├── demo_scenario3_regression_cycle.sh    #  Pass ↔ Fail ↔ Pass
+│   ├── demo_scenario4_arch_drift_cycle.sh    #  Pass ↔ Fail ↔ Pass
+│   └── run_all_scenarios.sh                  #  One-click verification
 ├── utils/                # Utility functions
 │   ├── llm_client.py     # LLM API wrapper with logging
 │   └── ast_parser.py     # Code parsing
@@ -337,28 +307,3 @@ Each node has three phases:
 
 MIT
 
-## Success Criteria
-
-✅ **All verification framework requirements met with REAL implementations**:
-
-1. ✅ Each scenario generates structured output files (JSON/YAML/MD)
-2. ✅ Each scenario demonstrates **success ↔ failure ↔ fix** complete cycle **with REAL code modifications**
-3. ✅ All scripts are executable and repeatable
-4. ✅ Output includes file paths, metrics, and result summaries
-5. ✅ Total execution time ≤ 10 minutes
-6. ✅ Real LLM API usage verified with token counts
-7. ✅ Hash verification for snapshot rollback (byte-for-byte match)
-8. ✅ **Scenario ②**: Real plan execution with `PlanExecutor`
-9. ✅ **Scenario ③**: Real test failures injected and verified with pytest
-10. ✅ **Scenario ④**: Real circular dependencies created and detected with Python import
-
-## Implementation Authenticity
-
-**This is NOT a simulation or demo - all functionality is REAL**:
-
-- ✅ **Scenario ①**: Files are actually saved, modified, and restored byte-for-byte
-- ✅ **Scenario ②**: Plans are actually parsed and can be executed on real repositories
-- ✅ **Scenario ③**: Test files are actually modified, pytest is actually run, failures are actually detected
-- ✅ **Scenario ④**: Circular dependencies are actually created in code, Python import actually fails
-
-See `REAL_IMPLEMENTATION_SUMMARY.md` for detailed verification evidence.
