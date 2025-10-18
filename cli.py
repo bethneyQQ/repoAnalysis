@@ -16,18 +16,20 @@ from scenarios import scenario_2_repo_adapt
 from scenarios import scenario_3_regression
 from scenarios import scenario_4_arch_drift
 from scenarios import scenario_5_local_rag
+from scenarios import scenario_6_code_review
 
 
 @click.group()
 def cli():
     """代码仓库分析工具
 
-    支持五个核心场景：
+    支持六个核心场景：
     1. snapshot - 本地快照与回滚
     2. adapt - 开源项目理解与组织化改造
     3. regression - 回归检测与质量门禁
     4. arch-drift - 架构影响与漂移扫描
     5. rag - 本地轻量级 RAG (Files-to-Prompt)
+    6. code-review - 代码审查 (安全、质量、性能)
     """
     pass
 
@@ -292,6 +294,133 @@ def rag(patterns, query, format, cxml, line_numbers, model):
             click.echo(f"错误: {error}")
         else:
             click.echo("未收到响应")
+
+
+@cli.command(name='code-review')
+@click.option('--git-diff', is_flag=True, help='Review current git changes')
+@click.option('--git-ref', default=None, help='Git reference to diff against (e.g., HEAD~1, main)')
+@click.option('--diff', 'diff_file', default=None, help='Path to diff/patch file')
+@click.option('--output', default=None, help='Output file path')
+@click.option('--format', 'output_format', type=click.Choice(['yaml', 'json', 'markdown']), default='yaml', help='Output format')
+@click.option('--security-only', is_flag=True, help='Only run security checks')
+def code_review(git_diff, git_ref, diff_file, output, output_format, security_only):
+    """Scenario 6: Comprehensive code review
+
+    Reviews code changes for security, quality, and performance issues.
+
+    Examples:
+      python cli.py code-review --git-diff
+      python cli.py code-review --git-ref HEAD~1 --output review.yaml
+      python cli.py code-review --diff changes.patch --format markdown
+      python cli.py code-review --git-diff --security-only
+    """
+    click.echo("Scenario 6: Code Review Pipeline")
+    click.echo("=" * 80)
+
+    # Determine what to review
+    if git_diff or (not git_ref and not diff_file):
+        # Review working directory changes
+        git_ref_to_use = None
+        source = "working directory changes"
+    elif git_ref:
+        git_ref_to_use = git_ref
+        source = f"changes vs {git_ref}"
+    elif diff_file:
+        git_ref_to_use = None
+        source = f"diff file: {diff_file}"
+    else:
+        click.echo("Error: Specify --git-diff, --git-ref, or --diff")
+        return
+
+    click.echo(f"Reviewing: {source}")
+    click.echo()
+
+    # Build config
+    config = {
+        "git_ref": git_ref_to_use,
+        "diff_file": diff_file,
+        "output_format": output_format,
+        "output_file": output
+    }
+
+    # Security-only mode
+    if security_only:
+        config["quality_checks"] = []
+        config["performance_checks"] = []
+        click.echo("Mode: Security checks only")
+    else:
+        click.echo("Mode: Full review (security + quality + performance)")
+
+    click.echo()
+
+    # Run review
+    try:
+        result = scenario_6_code_review.run(config)
+
+        # Display summary
+        overall_summary = result.get("overall_summary", {})
+        security_gate = result.get("security_gate_status", "N/A")
+        security_reason = result.get("security_gate_reason", "")
+
+        click.echo("Results:")
+        click.echo("-" * 80)
+        click.echo(f"Security Gate: {security_gate}")
+        if security_reason:
+            click.echo(f"Reason: {security_reason}")
+        click.echo()
+
+        click.echo(f"Total Issues: {overall_summary.get('total_issues', 0)}")
+        click.echo(f"New Issues: {overall_summary.get('new_issues', 0)}")
+        click.echo()
+
+        # Category breakdown
+        by_category = overall_summary.get("by_category", {})
+        if any(by_category.values()):
+            click.echo("By Category:")
+            for category, count in by_category.items():
+                if count > 0:
+                    click.echo(f"  - {category.capitalize()}: {count}")
+            click.echo()
+
+        # Severity breakdown
+        by_severity = overall_summary.get("by_severity", {})
+        if any(by_severity.values()):
+            click.echo("By Severity:")
+            for severity in ["critical", "high", "medium", "low"]:
+                count = by_severity.get(severity, 0)
+                if count > 0:
+                    click.echo(f"  - {severity.capitalize()}: {count}")
+            click.echo()
+
+        # Top findings
+        all_findings = result.get("all_findings", [])
+        if all_findings:
+            click.echo("Top Issues:")
+            for finding in all_findings[:5]:  # Show top 5
+                severity = finding["severity"].upper()
+                file_path = finding["file"]
+                line = finding["line"]
+                message = finding["message"]
+                click.echo(f"  [{severity}] {file_path}:{line}")
+                click.echo(f"    {message}")
+            if len(all_findings) > 5:
+                click.echo(f"  ... and {len(all_findings) - 5} more issues")
+            click.echo()
+
+        # Output file
+        if "output_file_path" in result:
+            click.echo(f"Full report saved to: {result['output_file_path']}")
+        elif not output:
+            # Print to stdout if no output file specified
+            click.echo("-" * 80)
+            click.echo(result.get("formatted_report", "No report generated"))
+
+    except Exception as e:
+        click.echo(f"Error during code review: {e}")
+        import traceback
+        traceback.print_exc()
+
+    click.echo("=" * 80)
 
 
 if __name__ == '__main__':
